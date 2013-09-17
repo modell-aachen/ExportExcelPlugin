@@ -43,30 +43,6 @@ sub initPlugin {
 
   Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 0, http_allow => 'POST' );
   Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 0, http_allow => 'GET' );
-
-  my $session = $Foswiki::Plugins::SESSION;
-  while ( my ($key, $value) = each(%$session) ) {
-    Foswiki::Func::writeWarning( "$key => $value" );
-  }
-
-  Foswiki::Func::writeWarning( "-------------CGI------------" );
-  my $cgi = $session->{cgiQuery};
-  while ( my ($key, $value) = each(%$cgi) ) {
-    Foswiki::Func::writeWarning( "$key => $value" );
-  }
-
-  Foswiki::Func::writeWarning( "-------------REQUEST------------" );
-  my $request = $session->{request};
-  while ( my ($key, $value) = each(%$request) ) {
-    Foswiki::Func::writeWarning( "$key => $value" );
-  }
-
-  Foswiki::Func::writeWarning( "-------------RESPONSE------------" );
-  my $response = $session->{response};
-  while ( my ($key, $value) = each(%$response) ) {
-    Foswiki::Func::writeWarning( "$key => $value" );
-  }
-
   return 1;
 }
 
