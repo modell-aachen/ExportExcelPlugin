@@ -1,0 +1,28 @@
+%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1376297731" format="1.1" reprev="2" version="2"}%
+---+!! !ExportExcelPlugin
+%SHORTDESCRIPTION%
+
+%TOC%
+
+---++ Installation Instructions
+There are no special steps required. Install and enable ExportExcelPlugin and its dependencies - that's it.
+In order to make a regular HTML table exportable, extend its class definitions by <code>exportable</code>, eg.
+
+<verbatim>
+<table class="myclass exportable">...</table>
+</verbatim>
+
+---++ Info
+
+|  Author(s): | Sven Meyer |
+|  Copyright: | &copy; Modell Aachen GmbH |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Home page: | [[http://www.modell-aachen.de][Modell Aachen]] |
+|  Support: | [[http://www.modell-aachen.de][Modell Aachen]] |
+
+
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. -->

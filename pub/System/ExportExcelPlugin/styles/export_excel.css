@@ -1,0 +1,35 @@
+div.excel-wrapper {
+  position: relative;
+  background-color: #ccc !important;
+  display: inline;
+  /*display: inline-table;*/
+}
+
+div.excel-export {
+  position: absolute;
+  z-index: 999;
+  top: -29px;
+  display: none;
+
+  cursor: hand;
+  cursor: pointer;
+
+  min-width: 120px;
+  padding: 4px 4px 4px 20px;
+
+  border: 1px solid #ccc;
+  border-radius: 2px;
+
+  color: #444;
+  text-align: center;
+
+  background-color: #f3f3f3;
+  background-image: url(../images/excel-logo.png);
+  background-repeat: no-repeat;
+  background-position: 6px center;
+}
+
+div.excel-export:hover {
+  background-color: #fefefe;
+  border: 1px solid #a7d7f9;
+}
