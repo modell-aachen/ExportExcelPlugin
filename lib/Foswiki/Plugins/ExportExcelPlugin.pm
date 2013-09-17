@@ -41,7 +41,6 @@ sub initPlugin {
   my $style = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"$path/styles/export_excel.css\" />";
   Foswiki::Func::addToZone( 'head', 'EXPORT::EXCEL::STYLES', $style );
 
-  # ToDo: authenticate -> 1
   Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 0, http_allow => 'POST' );
   Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 0, http_allow => 'GET' );
 
@@ -133,7 +132,8 @@ sub _restGet {
   my $filename = $query->{param}->{filename}[0];
 
   unless ( $filename ) {
-    # ToDo: fehler rendern und return!
+    Foswiki::Func::writeWarning( "Invalid file: $filename." );
+    return;
   }
 
   my $tmpDir = Foswiki::Func::getWorkArea( 'ExportExcelPlugin' );
@@ -145,7 +145,6 @@ sub _restGet {
 
   my $name = $session->{webName} . '.' . $session->{topicName} . '.xlsx';
   $response->pushHeader( "Content-Disposition", "inline; filename=\"$name\"" );
-  # $response->pushHeader( "Content-Disposition", "inline; filename=\"$filename\"" );
 
   my $file;
   open $file, "< $attachment";
@@ -154,7 +153,7 @@ sub _restGet {
   }
 
   unless ( unlink $attachment ) {
-    # ToDo: Fehler/Warnung ausgeben
+    Foswiki::Func::writeWarning( "Unable to delete temporary Excel file: $attachment." );
   }
 
   return;

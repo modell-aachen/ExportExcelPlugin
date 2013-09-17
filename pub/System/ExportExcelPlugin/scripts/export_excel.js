@@ -9,7 +9,7 @@
         type: 'POST',
         data: { table: table },
         success: function( data, status, xhr ) { $(this).download( data ); },
-        error: function( xhr, status, error ) { alert( 'error' ); }
+        error: function( xhr, status, error ) { alert( 'Oops, something went wrong.\nPlease try again.' ); }
       });
     },
 
