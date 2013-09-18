@@ -10,8 +10,6 @@ use Excel::Writer::XLSX;
 use File::Temp;
 use URL::Encode;
 
-use Data::Dumper;
-
 use utf8;
 
 use version;
@@ -43,6 +41,16 @@ sub initPlugin {
 
   Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 0, http_allow => 'POST' );
   Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 0, http_allow => 'GET' );
+
+  my $classes = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{Classes} || '';
+  if ( $classes ) {
+    Foswiki::Func::addToZone(
+    "script",
+    "EXPORTEXCELPLUGIN::EXTENSIONS",
+    "<script type='text/javascript'>jQuery.extend( foswiki.preferences, { \"excelExport\": { \"classes\": \"$classes\" } } );</script>",
+    "EXPORT::EXCEL::SCRIPTS" );
+  }
+
   return 1;
 }
 
@@ -80,6 +88,7 @@ sub _restConvert {
       my @cols = split( ";", $row );
       for my $col (@cols) {
         my $value = URL::Encode::url_decode_utf8( $col );
+        $worksheet->set_column( $i, $j, 20 );
         if ( $value =~ /TH:(.+)/ ) {
           $worksheet->write( $i, $j, $1, $header );
         } else {
@@ -94,7 +103,13 @@ sub _restConvert {
     }
   }
   else {
-    $worksheet->write( 0, 0, "ToDo -> Fehler bearbeiten" );
+    my $error = $workbook->add_format();
+    $error->set_format_properties(
+      bold => 1,
+      size => 12,
+      color => 'red' );
+    $worksheet->write( 0, 0, "Invalid table data!!", $error );
+    $worksheet->set_column( 0, 0, 25 );
   }
   $workbook->close();
   close $fh;
