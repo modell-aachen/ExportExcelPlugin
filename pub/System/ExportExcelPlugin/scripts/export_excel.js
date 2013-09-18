@@ -37,9 +37,11 @@
     },
 
     download: function( file ) {
+      var web = foswiki.getPreference( 'WEB' );
+      var topic = foswiki.getPreference( 'TOPIC' );
       var binUrl = foswiki.getPreference( 'SCRIPTURL' );
       var suffix = foswiki.getPreference( 'SCRIPTSUFFIX' );
-      var url = binUrl + '/rest' + suffix + '/ExportExcelPlugin/get?filename=' + file;
+      var url = binUrl + '/rest' + suffix + '/ExportExcelPlugin/get?filename=' + file + '&w=' + web + '&t=' + topic;
       window.location = url;
     }
   });

@@ -121,6 +121,8 @@ sub _restGet {
   my ( $session, $subject, $verb, $response ) = @_;
   my $query = $session->{request};
   my $filename = $query->{param}->{filename}[0];
+  my $web = $query->{param}->{w}[0];
+  my $topic = $query->{param}->{t}[0];
 
   unless ( $filename ) {
     Foswiki::Func::writeWarning( "Invalid file: $filename." );
@@ -134,7 +136,13 @@ sub _restGet {
     -type    => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   );
 
-  my $name = $session->{webName} . '.' . $session->{topicName} . '.xlsx';
+  my $name = '';
+  if ( $web && $topic ) {
+    $name = "$web.$topic.xlsx";
+  } else {
+    $name = 'export.xlsx';
+  }
+
   $response->pushHeader( "Content-Disposition", "inline; filename=\"$name\"" );
 
   my $file;
