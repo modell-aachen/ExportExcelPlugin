@@ -1,0 +1,24 @@
+div.excel-wrapper {
+  position: relative;
+  background-color: #ccc !important;
+  display: inline;
+}
+
+div.excel-export {
+  position: absolute;
+  z-index: 999;
+  top: 0px;
+  left: -26px;
+  display: none;
+  cursor: pointer;
+  cursor: hand;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  background-color: #f3f3f3;
+}
+
+div.excel-export:hover {
+  background-color: #fefefe;
+  border: 1px solid #a7d7f9;
+}
