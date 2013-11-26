@@ -15,6 +15,7 @@
 
         cols = $(row).find('td');
         $.each( cols, function( j, col ) {
+          $(col).children( ':not(:visible)' ).remove();
           var c = encodeURIComponent( $(col).text() );
           line += c + ";";
         });
@@ -55,8 +56,8 @@
       selector = selector.replace( classes[i], 'table.' + classes[i] );
     }
 
-    var tables = $(selector);
-    $.each( tables, function( index, table ) {
+    $(selector).livequery( function() {
+      var table = this;
       var tableWrapper = '<div class="excel-wrapper"></div>';
       $(table).wrap( $(tableWrapper) );
 
@@ -71,9 +72,9 @@
       var link = $('<div class="excel-export"><img src="/pub/System/ExportExcelPlugin/images/excel-logo.png" title="' + exportText + '" /></div>');
       $(link).appendTo( $(table).parent() );
 
-      if ( $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
+      if ( $('div.excel-wrapper').prev().length == 0 && $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
         var padTop = $('div.foswikiTopic').css( 'padding-top' ).replace( 'px', '' );
-        $(link).css( 'top', parseFloat( padTop ) );
+        $(link).css( 'top', 3 + parseFloat( padTop ) );
       }
 
       $(link).on( 'click', function() {
