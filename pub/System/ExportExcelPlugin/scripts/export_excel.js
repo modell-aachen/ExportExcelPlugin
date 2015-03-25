@@ -56,6 +56,10 @@
       selector = selector.replace( classes[i], 'table.' + classes[i] );
     }
 
+    if ( foswiki.preferences.excelExport.webstatistics && foswiki.preferences.TOPIC === 'WebStatistics' ) {
+      selector += ',#modacContents table.foswikiTable';
+    }
+
     $(selector).livequery( function() {
       var table = this;
       var tableWrapper = '<div class="excel-wrapper"></div>';

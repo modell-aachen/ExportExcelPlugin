@@ -43,11 +43,12 @@ sub initPlugin {
   Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 0, http_allow => 'GET' );
 
   my $classes = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{Classes} || '';
+  my $stats = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{AllowExportWebStatistics} || 0;
   if ( $classes ) {
     Foswiki::Func::addToZone(
     "script",
     "EXPORTEXCELPLUGIN::EXTENSIONS",
-    "<script type='text/javascript'>jQuery.extend( foswiki.preferences, { \"excelExport\": { \"classes\": \"$classes\" } } );</script>",
+    "<script type='text/javascript'>jQuery.extend( foswiki.preferences, { \"excelExport\": { \"classes\": \"$classes\", \"webstatistics\": \"$stats\" } } );</script>",
     "EXPORT::EXCEL::SCRIPTS" );
   }
 
