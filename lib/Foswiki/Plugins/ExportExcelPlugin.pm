@@ -39,8 +39,8 @@ sub initPlugin {
   my $style = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"$path/styles/export_excel.css\" />";
   Foswiki::Func::addToZone( 'head', 'EXPORT::EXCEL::STYLES', $style );
 
-  Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 0, http_allow => 'POST' );
-  Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 0, http_allow => 'GET' );
+  Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 1, validate => 0, http_allow => 'POST' );
+  Foswiki::Func::registerRESTHandler( 'get', \&_restGet, authenticate => 1, validate => 0, http_allow => 'GET' );
 
   my $classes = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{Classes} || '';
   my $stats = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{AllowExportWebStatistics} || 0;
@@ -130,13 +130,6 @@ sub _restGet {
     return;
   }
 
-  my $tmpDir = Foswiki::Func::getWorkArea( 'ExportExcelPlugin' );
-  my $attachment = "$tmpDir/$filename";
-  $response->header(
-    -status  => 200,
-    -type    => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  );
-
   my $name = '';
   if ( $web && $topic ) {
     $name = "$web.$topic.xlsx";
@@ -144,7 +137,14 @@ sub _restGet {
     $name = 'export.xlsx';
   }
 
-  $response->pushHeader( "Content-Disposition", "inline; filename=\"$name\"" );
+  $response->header(
+    -type => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    -status => 200,
+    "-Content-Disposition" => "inline; filename=\"$name\""
+  );
+
+  my $tmpDir = Foswiki::Func::getWorkArea( 'ExportExcelPlugin' );
+  my $attachment = "$tmpDir/$filename";
 
   my $file;
   open $file, "< $attachment";
@@ -152,11 +152,15 @@ sub _restGet {
     $response->print( $_ );
   }
 
-  unless ( unlink $attachment ) {
-    Foswiki::Func::writeWarning( "Unable to delete temporary Excel file: $attachment." );
-  }
-
-  return;
+  eval {
+    unless ( unlink $attachment ) {
+      Foswiki::Func::writeWarning( "Unable to delete temporary Excel file: $attachment." );
+    }
+    1;
+  } or do {
+      my $err = $@;
+      Foswiki::Func::writeWarning( "Failed deleting temporary Excel file: $attachment:\n$err" );
+  };
 }
 
 1;

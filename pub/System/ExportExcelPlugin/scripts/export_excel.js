@@ -15,8 +15,9 @@
 
         cols = $(row).find('td');
         $.each( cols, function( j, col ) {
-          $(col).children( ':not(:visible)' ).remove();
-          var c = encodeURIComponent( $(col).text() );
+          var $clone = $(col).clone();
+          $clone.find('br').replaceWith('<span>\n</span>');
+          var c = encodeURIComponent( $clone.text() );
           line += c + ";";
         });
 
@@ -76,7 +77,7 @@
       var link = $('<div class="excel-export"><img src="/pub/System/ExportExcelPlugin/images/excel-logo.png" title="' + exportText + '" /></div>');
       $(link).appendTo( $(table).parent() );
 
-      if ( $('div.excel-wrapper').prev().length == 0 && $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
+      if ( $('div.excel-wrapper').prev().length === 0 && $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
         var padTop = $('div.foswikiTopic').css( 'padding-top' ).replace( 'px', '' );
         $(link).css( 'top', 3 + parseFloat( padTop ) );
       }
