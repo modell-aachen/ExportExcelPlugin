@@ -33,10 +33,10 @@ sub initPlugin {
   }
 
   my $path = '%PUBURLPATH%/%SYSTEMWEB%/ExportExcelPlugin';
-  my $script = "<script type=\"text/javascript\" src=\"$path/scripts/export_excel.js\"></script>";
+  my $script = "<script type=\"text/javascript\" src=\"$path/scripts/export_excel.js?v=$RELEASE\"></script>";
   Foswiki::Func::addToZone( 'script', 'EXPORT::EXCEL::SCRIPTS', $script, 'JQUERYPLUGIN::FOSWIKI' );
 
-  my $style = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"$path/styles/export_excel.css\" />";
+  my $style = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"$path/styles/export_excel.css?v=$RELEASE\" />";
   Foswiki::Func::addToZone( 'head', 'EXPORT::EXCEL::STYLES', $style );
 
   Foswiki::Func::registerRESTHandler( 'convert', \&_restConvert, authenticate => 1, validate => 0, http_allow => 'POST' );
