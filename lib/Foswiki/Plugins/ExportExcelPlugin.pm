@@ -8,7 +8,6 @@ use Foswiki::Plugins ();
 
 use Excel::Writer::XLSX;
 use File::Temp;
-use URL::Encode;
 
 use utf8;
 
@@ -88,7 +87,9 @@ sub _restConvert {
     for my $row (@rows) {
       my @cols = split( ";", $row );
       for my $col (@cols) {
-        my $value = URL::Encode::url_decode_utf8( $col );
+        my $value = $col;
+        $value =~ s/%([0-9a-f]{2})/chr(hex($1))/egi;
+        $value = Encode::decode('UTF-8', $value);
         $worksheet->set_column( $i, $j, 20 );
         if ( $value =~ /TH:(.+)/ ) {
           $worksheet->write( $i, $j, $1, $header );
