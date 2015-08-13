@@ -33,7 +33,8 @@
         data: { table: arg },
         success: function( data, status, xhr ) { $(this).download( data ); },
         error: function( xhr, status, error ) {
-          console.log( 'ExportExcelPlugin: ' + error );
+          if ( window.console && console.log )
+            console.log( 'ExportExcelPlugin: ' + error );
         }
       });
     },
