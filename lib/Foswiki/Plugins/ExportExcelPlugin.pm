@@ -139,9 +139,10 @@ sub _restGet {
   }
 
   $response->header(
-    -type => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    -type => "application/vnd.ms-excel",
     -status => 200,
-    "-Content-Disposition" => "inline; filename=\"$name\""
+    "-Content-Disposition" => "attachment; filename=\"$name\"",
+    "-Content-Transfer-Encoding" => "binary"
   );
 
   my $tmpDir = Foswiki::Func::getWorkArea( 'ExportExcelPlugin' );
