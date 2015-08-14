@@ -67,12 +67,9 @@ sub _restConvert {
   my $attachment = $1;
   $response->header( -status  => 200 );
 
-  my $fh;
-  open $fh, "> $xlsxFile";
-  binmode $fh;
-
-  my $workbook  = Excel::Writer::XLSX->new( $fh );
+  my $workbook  = Excel::Writer::XLSX->new( $xlsxFile );
   my $worksheet = $workbook->add_worksheet();
+  $worksheet->add_write_handler(qr/^.*$/, \&store_string_widths);
 
   my $header = $workbook->add_format();
   $header->set_format_properties(
@@ -81,25 +78,33 @@ sub _restConvert {
     bg_color => '#cccccc',
     color => 'black' );
 
+  my $format = $workbook->add_format();
+  $format->set_text_wrap();
+  $format->set_shrink(1);
+
   if ( $param ) {
     my @rows = split( "\n", $param );
     my ( $i, $j ) = ( 0, 0 );
     for my $row (@rows) {
       my @cols = split( ";", $row );
+      my $lf = 1;
       for my $col (@cols) {
         my $value = $col;
+        my $colLF = 1;
         $value =~ s/%([0-9a-f]{2})/chr(hex($1))/egi;
-        $value = Encode::decode('UTF-8', $value);
-        $worksheet->set_column( $i, $j, 20 );
+        $value = Encode::decode($Foswiki::cfg{Site}{CharSet} || 'utf-8', $value);
+        $colLF++ while $value =~ /\n/g;
+        $lf = $colLF if $colLF > $lf;
         if ( $value =~ /TH:(.+)/ ) {
           $worksheet->write( $i, $j, $1, $header );
         } else {
-          $worksheet->write( $i, $j, $value );
+          $worksheet->write($i, $j, $value, $format);
         }
 
         $j = $j + 1;
       }
 
+      $worksheet->set_row($i, $lf * 15) if $i > 0;
       $i = $i + 1;
       $j = 0;
     }
@@ -111,12 +116,60 @@ sub _restConvert {
       size => 12,
       color => 'red' );
     $worksheet->write( 0, 0, "Invalid table data!!", $error );
-    $worksheet->set_column( 0, 0, 25 );
+    $worksheet->set_column( 0, 0, 20 );
   }
-  $workbook->close();
-  close $fh;
 
+  autofit_columns($worksheet);
+  $workbook->close();
   return $attachment;
+}
+
+sub autofit_columns {
+  my $worksheet = shift;
+  my $col = 0;
+
+  for my $width (@{$worksheet->{__col_widths}}) {
+    $worksheet->set_column($col, $col, $width) if $width;
+    $col++;
+  }
+}
+
+sub store_string_widths {
+  my $worksheet = shift;
+  my $col       = $_[1];
+  my $token     = $_[2];
+  # Ignore some tokens that we aren't interested in.
+  return if not defined $token;       # Ignore undefs.
+  return if $token eq '';             # Ignore blank cells.
+  return if ref $token eq 'ARRAY';    # Ignore array refs.
+  return if $token =~ /^=/;           # Ignore formula
+
+  # Ignore numbers
+  return if $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/;
+
+  # Ignore various internal and external hyperlinks. In a real scenario
+  # you may wish to track the length of the optional strings used with
+  # urls.
+  return if $token =~ m{^[fh]tt?ps?://};
+  return if $token =~ m{^mailto:};
+  return if $token =~ m{^(?:in|ex)ternal:};
+
+  # We store the string width as data in the Worksheet object. We use
+  # a double underscore key name to avoid conflicts with future names.
+  #
+  my $old_width    = $worksheet->{__col_widths}->[$col];
+  my $string_width = string_width($token);
+
+  if (not defined $old_width or $string_width > $old_width) {
+    $worksheet->{__col_widths}->[$col] = $string_width < 15 ? 15 : $string_width;
+  }
+
+  # Return control to write();
+  return undef;
+}
+
+sub string_width {
+  return 1.0 * length $_[0];
 }
 
 sub _restGet {
