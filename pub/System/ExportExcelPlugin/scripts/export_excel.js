@@ -16,7 +16,8 @@
         cols = $(row).find('td');
         $.each( cols, function( j, col ) {
           var $clone = $(col).clone();
-          $clone.find('br').replaceWith('<span>\n</span>');
+          $clone.find('br').replaceWith('<span>\n</span>');//
+          $clone.find('p:empty').replaceWith('<span>\n\n</span>');
           var c = encodeURIComponent( $clone.text() );
           line += c + ";";
         });
