@@ -203,9 +203,12 @@ sub _restGet {
 
   my $file;
   open $file, "< $attachment";
-  while( <$file> ) {
-    $response->print( $_ );
-  }
+  binmode($file, ":raw");
+
+  local $/;
+  my $xls = <$file>;
+
+  $response->body( $xls );
 
   eval {
     unless ( unlink $attachment ) {
