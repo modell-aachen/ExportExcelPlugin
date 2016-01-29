@@ -1,16 +1,21 @@
 %META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1376297731" format="1.1" reprev="2" version="2"}%
+<!--
+One line description, required for extensions repository catalog.
+BuildContrib will fill in the SHORTDESCRIPTION with the value of
+$SHORTDESCRIPTION from the .pm module, or you can redefine it here if you
+prefer.
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
 ---+!! !ExportExcelPlugin
+
 %SHORTDESCRIPTION%
 
-%TOC%
-
 ---++ Installation Instructions
-There are no special steps required. Install and enable ExportExcelPlugin and its dependencies - that's it.
-In order to make a regular HTML table exportable, extend its class definitions by <code>exportable</code>, eg.
+Install and enable ExportExcelPlugin and its dependencies. Then you can specify CSS classes in the configure to which the export functionality shall be applied.
 
-<verbatim>
-<table class="myclass exportable">...</table>
-</verbatim>
+---++ Note
+
+There is no support for links in the Excel sheet.
 
 ---++ Info
 

@@ -15,7 +15,7 @@ use version;
 our $VERSION = version->declare( '1.0.0' );
 our $RELEASE = "1.0";
 our $NO_PREFS_IN_TOPIC = 1;
-our $SHORTDESCRIPTION = 'Provides table exports to Excel 2007+ format.';
+our $SHORTDESCRIPTION = "Provides table exports to Excel .xlsx format.";
 
 sub initPlugin {
   my ( $topic, $web, $user, $installWeb ) = @_;
