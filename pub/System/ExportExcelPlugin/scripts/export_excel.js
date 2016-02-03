@@ -76,7 +76,8 @@
         exportText = 'Export to Excel';
       }
 
-      var link = $('<div class="excel-export"><img src="/pub/System/ExportExcelPlugin/images/excel-logo.png" title="' + exportText + '" /></div>');
+      var pub = foswiki.getPreference( 'PUBURLPATH' );
+      var link = $('<div class="excel-export"><img src="' + pub + '/System/ExportExcelPlugin/images/excel-logo.png" title="' + exportText + '" /></div>');
       $(link).appendTo( $(table).parent() );
 
       if ( $('div.excel-wrapper').prev().length === 0 && $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
