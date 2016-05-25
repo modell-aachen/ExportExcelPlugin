@@ -130,4 +130,3 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
     $('.foswikiTopic').on('mouseleave', selector, onMouseLeave);
   });
 })(jQuery);
-
