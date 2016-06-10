@@ -52,7 +52,7 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
 
 (function($) {
   var exporter = new ExcelExporter();
-  var $table = null;
+  var $hoveredTable = null;
   var timer = null;
   var $img = $('<img class="xslxhint" src="/pub/System/ExportExcelPlugin/images/excel-32.png" title="" />');
 
@@ -82,51 +82,82 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
 
   var removeHint = function() {
     $img.detach();
-    $table = null;
+    $hoveredTable = null;
     timer = null;
   };
 
   var onMouseEnter = function() {
-    $table = $(this);
+    $hoveredTable = $(this);
 
-      var offsetY = $table.css('margin-top');
-      offsetY = parseFloat(offsetY.replace(/px/, ''));
+    var offsetY = $hoveredTable.css('margin-top');
+    offsetY = parseFloat(offsetY.replace(/px/, ''));
 
-      var pos = $table.position();
-      $img.css('top', pos.top + offsetY);
-      $img.css('left', pos.left - 40);
-      $img.appendTo('.foswikiTopic');
+    var pos = $hoveredTable.position();
+    $img.css('top', pos.top + offsetY);
+    $img.css('left', pos.left - 40);
+    $img.appendTo('.foswikiTopic');
   };
 
   var onMouseLeave = function() {
     timer = setTimeout(removeHint, 300);
   };
 
+  var renderIcon = function() {
+    var $table = $(this);
+    var $icon = $img.clone();
+    $icon.data('table', $table);
+    $icon.appendTo('.foswikiTopic');
+  };
+
+  var updateIcons = function() {
+    setTimeout(function() {
+      $('.xslxhint').each(function() {
+        var $icon = $(this);
+        var $table = $icon.data('table');
+        var offsetY = $table.css('margin-top');
+        offsetY = parseFloat(offsetY.replace(/px/, ''));
+
+        var pos = $table.position();
+        $icon.css('top', pos.top + offsetY);
+        $icon.css('left', pos.left - 40);
+      });
+    }, 250);
+  };
 
   $(document).ready( function() {
     $('body').on('click', '.xlsxlink', handleXLSXLINK);
 
     if ( !foswiki.preferences.excelExport ) return;
-    var selector = foswiki.preferences.excelExport.classes;
+    var cfg = foswiki.preferences.excelExport;
+    var selector = cfg.classes;
     var classes = selector.split( ',' );
     for( var i = 0; i < classes.length; i++ ) {
       selector = selector.replace( classes[i], 'table.' + classes[i] );
     }
 
-    if ( foswiki.preferences.excelExport.webstatistics && foswiki.preferences.TOPIC === 'WebStatistics' ) {
+    if ( cfg.webstatistics && foswiki.preferences.TOPIC === 'WebStatistics' ) {
       selector += ',#modacContents table.foswikiTable';
     }
 
     $img.on('mouseenter', keepHint);
     $img.on('mouseleave', removeHint);
-    $img.on('click', function() {
+
+    $('body').on('click', '.xslxhint', function() {
       $.blockUI();
-      exporter.export($table).done(function(xlsx) {
+      exporter.export($(this).data('table') || $hoveredTable).done(function(xlsx) {
         window.location = xlsx;
       }).always($.unblockUI);
     });
 
-    $('.foswikiTopic').on('mouseenter', selector, onMouseEnter);
-    $('.foswikiTopic').on('mouseleave', selector, onMouseLeave);
+    if (cfg.useHover) {
+      $('.foswikiTopic').on('mouseenter', selector, onMouseEnter);
+      $('.foswikiTopic').on('mouseleave', selector, onMouseLeave);
+    } else {
+      // opening/closing a twisty will change the position of a table
+      // -> rearrange xlsx icon
+      $('.foswikiTopic').on('click', '.twistyTrigger', updateIcons);
+      $(selector).each(renderIcon);
+      updateIcons();
+    }
   });
 })(jQuery);
