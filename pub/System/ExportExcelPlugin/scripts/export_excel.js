@@ -156,7 +156,7 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
       // opening/closing a twisty will change the position of a table
       // -> rearrange xlsx icon
       $('.foswikiTopic').on('click', '.twistyTrigger', updateIcons);
-      $(selector).each(renderIcon);
+      $(selector).livequery(renderIcon);
       updateIcons();
     }
   });
