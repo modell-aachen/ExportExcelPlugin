@@ -45,11 +45,14 @@ sub initPlugin {
 
   my $classes = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{Classes} || '';
   my $stats = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{AllowExportWebStatistics} || 0;
+  my $hover = $Foswiki::cfg{Plugins}{ExportExcelPlugin}{HoverMode};
+  $hover = 1 unless defined $hover;
+  my $useHover = $hover ? 'true' : 'false';
   if ( $classes ) {
     Foswiki::Func::addToZone(
     "script",
     "EXPORTEXCELPLUGIN::EXTENSIONS",
-    "<script type='text/javascript'>jQuery.extend( foswiki.preferences, { \"excelExport\": { \"classes\": \"$classes\", \"webstatistics\": \"$stats\" } } );</script>",
+    "<script type='text/javascript'>jQuery.extend( foswiki.preferences, { \"excelExport\": { \"classes\": \"$classes\", \"webstatistics\": \"$stats\", \"useHover\": $useHover } } );</script>",
     "EXPORT::EXCEL::SCRIPTS" );
   }
 
@@ -63,7 +66,7 @@ sub _tagExport {
   my $text = $params->{text} || '%MAKETEXT{"Export to Excel"}%';
   my $columns = $params->{columns} || '';
   my $cls = $params->{extraclasses} || '';
-  $cls =~ s/,/\s/g;
+  $cls =~ s/,/ /g;
 
   return '' unless $selector;
   return <<LINK;
@@ -113,9 +116,9 @@ sub _restExport {
 
   my @rows = @{$r->{data}};
   for (my $i = 0; $i < scalar(@rows); $i++) {
-    my @row = @rows[$i];
+    my @row = $rows[$i];
     for (my $j = 0; $j < scalar(@row); $j++) {
-      $sheet->write( $i, $j, @row[$j], $i == 0 && $r->{header} ? $header : $format );
+      $sheet->write( $i, $j, $row[$j], $i == 0 && $r->{header} ? $header : $format );
     }
   }
 
