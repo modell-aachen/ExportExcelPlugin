@@ -1,101 +1,163 @@
-(function($) {
-  $.fn.extend( {
-    convertTable: function( table ) {
-      var arg = "";
-      var rows = $(table).find('tr');
-      $.each( rows, function( i, row ) {
-        var line = "";
+var ExcelExporter = function() {};
+ExcelExporter.prototype.export = function(table, filterCols) {
+  var payload = this.serializeTable(table, filterCols);
+  if (payload === null) return null;
 
-        // ToDo: geht auch schöner!!
-        var cols = $(row).find('th');
-        $.each( cols, function( j, col ) {
-          var c = encodeURIComponent( 'TH:' + $(col).text() );
-          line += c + ";";
-        });
+  var fw = foswiki;
+  var target = [
+    fw.getPreference('SCRIPTURL'),
+    '/restauth',
+    fw.getPreference('SCRIPTSUFFIX'),
+    '/ExportExcelPlugin/export'
+  ].join('');
 
-        cols = $(row).find('td');
-        $.each( cols, function( j, col ) {
-          var $clone = $(col).clone();
-          $clone.find('br').replaceWith('<span>\n</span>');//
-          $clone.find('p:empty').replaceWith('<span>\n\n</span>');
-          var c = encodeURIComponent( $clone.text() );
-          line += c + ";";
-        });
+  payload.web = fw.getPreference('WEB');
+  payload.topic = fw.getPreference('TOPIC');
 
-        arg += line + "\n";
-      });
+  return $.ajax({
+    url: target,
+    method: 'POST',
+    data: {payload: JSON.stringify(payload)},
+  });
+};
 
-      var binUrl = foswiki.getPreference( 'SCRIPTURL' );
-      var suffix = foswiki.getPreference( 'SCRIPTSUFFIX' );
-      var url = binUrl + '/rest' + suffix + '/ExportExcelPlugin/convert';
-      $.ajax({
-        url: url,
-        type: 'POST',
-        data: { table: arg },
-        success: function( data, status, xhr ) { $(this).download( data ); },
-        error: function( xhr, status, error ) {
-          if ( window.console && console.log )
-            console.log( 'ExportExcelPlugin: ' + error );
-        }
-      });
-    },
-
-    download: function( file ) {
-      var web = foswiki.getPreference( 'WEB' );
-      var topic = foswiki.getPreference( 'TOPIC' );
-      var binUrl = foswiki.getPreference( 'SCRIPTURL' );
-      var suffix = foswiki.getPreference( 'SCRIPTSUFFIX' );
-      var url = binUrl + '/rest' + suffix + '/ExportExcelPlugin/get?filename=' + file + '&w=' + web + '&t=' + topic;
-      window.location = url;
+ExcelExporter.prototype.serializeTable = function(table, filterCols) {
+  if (!table || !$(table).is('table')) {
+    if (window.console && console.error) {
+      console.error('Invalid table data!');
     }
+
+    return null;
+  }
+
+  var $table = $(table);
+  filterCols = filterCols || [];
+  var retval = {data: [], header: $table.find('tr th').length};
+  $table.find('tr').each(function() {
+    var arr = [];
+    var cols = $(this).find('th,td');
+    for( var i = 0; i < cols.length; ++i) {
+      if (filterCols.length && filterCols.indexOf(i) == -1) continue;
+      var txt = $(cols[i]).text();
+      txt = txt.replace(/^[\n\r\s\t]+/mg, '');
+      txt = txt.replace(/[\n\r\s\t]+$/mg, '');
+      arr.push(txt);
+    }
+
+    retval.data.push(arr);
   });
 
-  $(document).ready( function() {
-    if ( !foswiki.preferences.excelExport ) return;
+  return retval;
+};
 
-    var selector = foswiki.preferences.excelExport.classes;
+(function($) {
+  var exporter = new ExcelExporter();
+  var $hoveredTable = null;
+  var timer = null;
+  var $img = $('<img class="xslxhint" src="/pub/System/ExportExcelPlugin/images/excel-32.png" title="" />');
+
+  var handleXLSXLINK = function() {
+    var $link = $(this);
+    var $table = $($link.data('selector'));
+    var filter = $link.data('columns').split(',').map(function(c) {
+      return parseInt(c);
+    });
+
+    $.blockUI();
+    exporter.export($table, filter).done(function(xlsx) {
+      window.location = xlsx;
+    }).fail(function(err) {
+      if (window.console && console.error) {
+        console.error(err);
+      }
+    }).always($.unblockUI);
+    return false;
+  };
+
+  var keepHint = function() {
+    if (timer !== null) {
+      clearTimeout(timer);
+    }
+  };
+
+  var removeHint = function() {
+    $img.detach();
+    $hoveredTable = null;
+    timer = null;
+  };
+
+  var onMouseEnter = function() {
+    $hoveredTable = $(this);
+
+    var offsetY = $hoveredTable.css('margin-top');
+    offsetY = parseFloat(offsetY.replace(/px/, ''));
+
+    var pos = $hoveredTable.position();
+    $img.css('top', pos.top + offsetY);
+    $img.css('left', pos.left - 40);
+    $img.appendTo('.foswikiTopic');
+  };
+
+  var onMouseLeave = function() {
+    timer = setTimeout(removeHint, 300);
+  };
+
+  var renderIcon = function() {
+    var $table = $(this);
+    var $icon = $img.clone();
+    $icon.data('table', $table);
+    $icon.appendTo('.foswikiTopic');
+  };
+
+  var updateIcons = function() {
+    setTimeout(function() {
+      $('.xslxhint').each(function() {
+        var $icon = $(this);
+        var $table = $icon.data('table');
+        var offsetY = $table.css('margin-top');
+        offsetY = parseFloat(offsetY.replace(/px/, ''));
+
+        var pos = $table.position();
+        $icon.css('top', pos.top + offsetY);
+        $icon.css('left', pos.left - 40);
+      });
+    }, 250);
+  };
+
+  $(document).ready( function() {
+    $('body').on('click', '.xlsxlink', handleXLSXLINK);
+
+    if ( !foswiki.preferences.excelExport ) return;
+    var cfg = foswiki.preferences.excelExport;
+    var selector = cfg.classes;
     var classes = selector.split( ',' );
     for( var i = 0; i < classes.length; i++ ) {
       selector = selector.replace( classes[i], 'table.' + classes[i] );
     }
 
-    if ( foswiki.preferences.excelExport.webstatistics && foswiki.preferences.TOPIC === 'WebStatistics' ) {
+    if ( cfg.webstatistics && foswiki.preferences.TOPIC === 'WebStatistics' ) {
       selector += ',#modacContents table.foswikiTable';
     }
 
-    $(selector).livequery( function() {
-      var table = this;
-      var tableWrapper = '<div class="excel-wrapper"></div>';
-      $(table).wrap( $(tableWrapper) );
+    $img.on('mouseenter', keepHint);
+    $img.on('mouseleave', removeHint);
 
-      var exportText = '';
-      var lang = navigator.language || navigator.userLanguage;
-      if ( /de/.test( lang ) ) {
-        exportText = 'Nach Excel exportieren';
-      } else {
-        exportText = 'Export to Excel';
-      }
-
-      var pub = foswiki.getPreference( 'PUBURLPATH' );
-      var link = $('<div class="excel-export"><img src="' + pub + '/System/ExportExcelPlugin/images/excel-logo.png" title="' + exportText + '" /></div>');
-      $(link).appendTo( $(table).parent() );
-
-      if ( $('div.excel-wrapper').prev().length === 0 && $('div.excel-wrapper').parent().attr('class') == 'foswikiTopic' ) {
-        var padTop = $('div.foswikiTopic').css( 'padding-top' ).replace( 'px', '' );
-        $(link).css( 'top', 3 + parseFloat( padTop ) );
-      }
-
-      $(link).on( 'click', function() {
-        $(this).convertTable( table );
-      });
-
-      $(table).parent().on( 'mouseenter', function() {
-        $(link).css( 'display', 'inline-block' );
-      });
-
-      $(table).parent().on( 'mouseleave', function() {
-        $(link).css( 'display', 'none' );
-      });
+    $('body').on('click', '.xslxhint', function() {
+      $.blockUI();
+      exporter.export($(this).data('table') || $hoveredTable).done(function(xlsx) {
+        window.location = xlsx;
+      }).always($.unblockUI);
     });
+
+    if (cfg.useHover) {
+      $('.foswikiTopic').on('mouseenter', selector, onMouseEnter);
+      $('.foswikiTopic').on('mouseleave', selector, onMouseLeave);
+    } else {
+      // opening/closing a twisty will change the position of a table
+      // -> rearrange xlsx icon
+      $('.foswikiTopic').on('click', '.twistyTrigger', updateIcons);
+      $(selector).livequery(renderIcon);
+      updateIcons();
+    }
   });
 })(jQuery);
