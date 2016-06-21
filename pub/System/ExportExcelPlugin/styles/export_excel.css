@@ -3,3 +3,11 @@ img.xslxhint {
   z-index: 999;
   cursor: pointer;
 }
+
+img.xslxhint.static {
+  left: -24px;
+}
+
+div.xlsxcontainer {
+  position: relative;
+}

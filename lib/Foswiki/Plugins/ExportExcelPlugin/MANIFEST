@@ -3,6 +3,7 @@ data/System/ExportExcelPlugin.txt 0644 Documentation page
 lib/Foswiki/Plugins/ExportExcelPlugin.pm 0444 Plugin Perl module
 lib/Foswiki/Plugins/ExportExcelPlugin/Config.spec 0444 Plugin configuration
 pub/System/ExportExcelPlugin/images/excel-logo.png 0444 Image
+pub/System/ExportExcelPlugin/images/excel-24.png 0444 Image
 pub/System/ExportExcelPlugin/images/excel-32.png 0444 Image
 pub/System/ExportExcelPlugin/images/excel-64.png 0444 Image
 pub/System/ExportExcelPlugin/scripts/export_excel.js 0444 Plugin scripts

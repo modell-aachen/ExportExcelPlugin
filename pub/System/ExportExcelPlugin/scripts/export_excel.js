@@ -86,6 +86,16 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
     timer = null;
   };
 
+  var handleStaticHint = function() {
+    var $exportable = $(this);
+    var $div = $('<div class="xlsxcontainer"></div>');
+    var $icon = $img.clone().addClass('static');
+    $icon.attr('src', $icon.attr('src').replace(/excel-32/, 'excel-24'));
+
+    $exportable.wrap($div);
+    $exportable.parent().prepend($icon);
+  };
+
   var onMouseEnter = function() {
     $hoveredTable = $(this);
 
@@ -100,28 +110,6 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
 
   var onMouseLeave = function() {
     timer = setTimeout(removeHint, 300);
-  };
-
-  var renderIcon = function() {
-    var $table = $(this);
-    var $icon = $img.clone();
-    $icon.data('table', $table);
-    $icon.appendTo('.foswikiTopic');
-  };
-
-  var updateIcons = function() {
-    setTimeout(function() {
-      $('.xslxhint').each(function() {
-        var $icon = $(this);
-        var $table = $icon.data('table');
-        var offsetY = $table.css('margin-top');
-        offsetY = parseFloat(offsetY.replace(/px/, ''));
-
-        var pos = $table.position();
-        $icon.css('top', pos.top + offsetY);
-        $icon.css('left', pos.left - 40);
-      });
-    }, 250);
   };
 
   $(document).ready( function() {
@@ -144,7 +132,8 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
 
     $('body').on('click', '.xslxhint', function() {
       $.blockUI();
-      exporter.export($(this).data('table') || $hoveredTable).done(function(xlsx) {
+      var $exportable = $hoveredTable || $(this).next();
+      exporter.export($exportable).done(function(xlsx) {
         window.location = xlsx;
       }).always($.unblockUI);
     });
@@ -153,11 +142,7 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
       $('.foswikiTopic').on('mouseenter', selector, onMouseEnter);
       $('.foswikiTopic').on('mouseleave', selector, onMouseLeave);
     } else {
-      // opening/closing a twisty will change the position of a table
-      // -> rearrange xlsx icon
-      $('.foswikiTopic').on('click', '.twistyTrigger', updateIcons);
-      $(selector).livequery(renderIcon);
-      updateIcons();
+      $(selector).livequery(handleStaticHint);
     }
   });
 })(jQuery);
