@@ -1,5 +1,6 @@
 !noci
 data/System/ExportExcelPlugin.txt 0644 Documentation page
+data/System/VarXLSXLINK.txt 0644 Documentation page
 lib/Foswiki/Plugins/ExportExcelPlugin.pm 0444 Plugin Perl module
 lib/Foswiki/Plugins/ExportExcelPlugin/Config.spec 0444 Plugin configuration
 pub/System/ExportExcelPlugin/images/excel-logo.png 0444 Image

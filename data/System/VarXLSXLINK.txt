@@ -1,0 +1,36 @@
+%META:TOPICPARENT{name="ExportExcelPlugin"}%
+---+ XLSXLINK macro
+
+This is a macro from [[ExportExcelPlugin]], used to render a static link to
+manually trigger an export of a specified table to Microsoft Excel.
+
+%STARTINCLUDE%
+---+++ =XLSXLINK=
+Renders a static link to manually trigger an export to MS Excel.
+
+Example:
+
+<verbatim class="tml">
+%XLSXLINK{selector=".my-table" columns="0,1,2,3,4"}%
+
+<table class="my-table">
+  <thead>
+    <tr>
+      <th>Col 0</th>
+      <th>Col 1</th>
+      <th>Col 2</th>
+      <th>Col 3</th>
+      <th>Col 4</th>
+    </tr>
+  </thead>
+  <tbody>
+    ...
+  </tbody>
+</table>
+</verbatim>
+
+The following parameters are available:
+| *Parameter* | *Description* | *Default* |
+| selector | CSS selector pointing to the table | |
+| columns | Zero-based, comma separated list of columns to include into the generated Excel file | |
+%STOPINCLUDE%

@@ -1,17 +1,24 @@
-%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1376297731" format="1.1" reprev="2" version="2"}%
-<!--
-One line description, required for extensions repository catalog.
-BuildContrib will fill in the SHORTDESCRIPTION with the value of
-$SHORTDESCRIPTION from the .pm module, or you can redefine it here if you
-prefer.
-   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
--->
----+!! !ExportExcelPlugin
-
+%META:TOPICPARENT{name="Plugins"}%
+---+ !ExportExcelPlugin
 %SHORTDESCRIPTION%
 
+%TOC%
+
 ---++ Installation Instructions
-Install and enable ExportExcelPlugin and its dependencies. Then you can specify CSS classes in the configure to which the export functionality shall be applied.
+%$INSTALL_INSTRUCTIONS%
+
+---++ Configuration
+---+++ =$Foswiki::cfg{Plugins}{ExportExcelPlugin}{Classes}=
+A comma separated list of CSS class names for which an =Export to Excel= hint
+should be rendered.%BR%
+Defaults to: =Modac_Standard,Modac_Standard_Ohne,Modac_Standard_Leer,atpSearch=
+
+---+++ =$Foswiki::cfg{Plugins}{ExportExcelPlugin}{HoverMode}=
+A flag to toggle whether the =Export to Excel= should be visibile on =MouseEnter=
+or whether it should remain visibile all the time.
+
+---++ Macros
+%INCLUDE{"VarXLSXLINK"}%
 
 ---++ Note
 
@@ -19,15 +26,11 @@ There is no support for links in the Excel sheet.
 
 ---++ Info
 
-|  Author(s): | Sven Meyer |
-|  Copyright: | &copy; Modell Aachen GmbH |
+|  Author(s): | Foswiki:Main.SvenMeyer |
+|  Copyright: | &copy; 2016, Modell Aachen GmbH |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
-|  Change History: | <!-- versions below in reverse order -->&nbsp; |
 |  Dependencies: | %$DEPENDENCIES% |
 |  Home page: | [[http://www.modell-aachen.de][Modell Aachen]] |
 |  Support: | [[http://www.modell-aachen.de][Modell Aachen]] |
-
-
-<!-- Do _not_ attempt to edit this topic; it is auto-generated. -->
