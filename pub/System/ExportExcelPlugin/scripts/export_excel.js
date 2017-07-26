@@ -31,6 +31,8 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
   }
 
   var $table = $(table);
+  var isAutonumbered = $table.is('.autonumbered');
+  var rowCounter = 0;
   filterCols = filterCols || [];
   var retval = {data: [], header: $table.find('tr th').length};
   $table.find('tr').each(function() {
@@ -38,9 +40,19 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
     var cols = $(this).find('th,td');
     for( var i = 0; i < cols.length; ++i) {
       if (filterCols.length && filterCols.indexOf(i) == -1) continue;
-      var txt = $(cols[i]).text();
+      var $col = $(cols[i]);
+      var txt = $col.text();
+
       txt = txt.replace(/^[\n\r\s\t]+/mg, '');
       txt = txt.replace(/[\n\r\s\t]+$/mg, '');
+
+      if ($col.is('td') && i === 0 && isAutonumbered) {
+        var content = window.getComputedStyle($col[0],':before').content || '';
+        if (content === 'counter(rowNumber)') {
+          txt = ++rowCounter + (txt ? (' ' + txt) : '');
+        }
+      }
+
       arr.push(txt);
     }
 
