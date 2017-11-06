@@ -185,7 +185,7 @@ sub _restGet {
   my $query = $session->{request};
   my $filename = $query->{param}->{filename}[0];
   my $web = $query->{param}->{w}[0];
-  my $topic = $query->{param}->{t}[0];
+  my $topic = $query->{param}->{t}[0]; #TODO: Check if the topic name is still needed in the future
 
   unless ( $filename ) {
     Foswiki::Func::writeWarning( "Invalid file: $filename." );
@@ -194,7 +194,8 @@ sub _restGet {
 
   my $name = '';
   if ( $web && $topic ) {
-    $name = "$web.$topic.xlsx";
+    my $date = Foswiki::Time::formatTime(time(), '$year-$mo-$day');
+    $name = $date.'_'.$web.'_export.xlsx';
   } else {
     $name = 'export.xlsx';
   }
