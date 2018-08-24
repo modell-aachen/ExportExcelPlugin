@@ -32,11 +32,13 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
 
   var $table = $(table);
   var isAutonumbered = $table.is('.autonumbered');
+  var autonumberCounter = 0;
   var rowCounter = 0;
   filterCols = filterCols || [];
-  var retval = {data: [], header: $table.find('tr th').length};
+  var rememberRowSpan = [];
+  var retval = {data: [], header: $table.find('tr th').length, spans: []};
   $table.find('tr').each(function() {
-    var arr = [];
+    var colContent = [];
     var cols = $(this).find('th,td');
     for( var i = 0; i < cols.length; ++i) {
       if (filterCols.length && filterCols.indexOf(i) == -1) continue;
@@ -46,20 +48,54 @@ ExcelExporter.prototype.serializeTable = function(table, filterCols) {
       txt = txt.replace(/^[\n\r\s\t]+/mg, '');
       txt = txt.replace(/[\n\r\s\t]+$/mg, '');
 
+      addRowSpanCellOffset(rememberRowSpan, colContent, i);
       if ($col.is('td') && i === 0 && isAutonumbered) {
         var content = window.getComputedStyle($col[0],':before').content || '';
         if (content === 'counter(rowNumber)') {
-          txt = ++rowCounter + (txt ? (' ' + txt) : '');
+          txt = ++autonumberCounter + (txt ? (' ' + txt) : '');
         }
       }
-
-      arr.push(txt);
+      colContent.push(txt);
+      handleSpans($col, rowCounter, colContent, rememberRowSpan, retval);
     }
-
-    retval.data.push(arr);
+    retval.data.push(colContent);
+    rowCounter++;
   });
 
   return retval;
+};
+
+var handleSpans = function($col, rowCounter, colContent, rememberRowSpan, retval) {
+  var colspan = $col.attr('colspan');
+  var rowspan = $col.attr('rowspan');
+  if(colspan || rowspan) {
+    retval.spans.push({
+      col: colContent.length -1,
+      row: rowCounter,
+      colspan: colspan || 1,
+      rowspan: rowspan || 1
+    });
+    if (rowspan && rowspan > 1) {
+      rememberRowSpan.push({
+        col: colContent.length -1,
+        colspan: colspan
+      });
+    }
+    if (colspan && colspan > 1) {
+      for(var j=1; j < colspan; j++) {
+        colContent.push('');
+      }
+    }
+  }
+}
+
+var addRowSpanCellOffset = function(rememberRowSpan, colContent, col) {
+  if (rememberRowSpan[0] && rememberRowSpan[0].col === col) {
+    for(var j=0; j < rememberRowSpan[0].colspan; j++) {
+      colContent.push('');
+    }
+    rememberRowSpan.shift();
+  }
 };
 
 (function($) {

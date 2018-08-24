@@ -114,6 +114,12 @@ sub _restExport {
     color => 'black'
   );
 
+  my @spans = @{$r->{spans}};
+  foreach my $span (@spans) {
+    my $lastRow = $span->{row} + ($span->{rowspan} -1);
+    my $lastCol = $span->{col} + ($span->{colspan} -1);
+    $sheet->merge_range( $span->{row}, $span->{col}, $lastRow, $lastCol, '', $format );
+  }
   my @rows = @{$r->{data}};
   for (my $i = 0; $i < scalar(@rows); $i++) {
     my @row = $rows[$i];
