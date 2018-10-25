@@ -114,7 +114,7 @@ sub _restExport {
     color => 'black'
   );
 
-  my @spans = @{$r->{spans}};
+  my @spans = $r->{spans} ? @{$r->{spans}} : ();
   foreach my $span (@spans) {
     my $lastRow = $span->{row} + ($span->{rowspan} -1);
     my $lastCol = $span->{col} + ($span->{colspan} -1);
